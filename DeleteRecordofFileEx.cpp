@@ -1,5 +1,9 @@
+#define UNICODE
+#include <stdarg.h>
+#include <stdio.h>
 #include <windows.h>
 #include <winevt.h>
+
 #pragma comment(lib,"wevtapi.lib")
 
 BOOL DeleteRecord(LPWSTR ReadPath, LPWSTR lpEventRecordId)
@@ -32,7 +36,7 @@ BOOL DeleteRecord(LPWSTR ReadPath, LPWSTR lpEventRecordId)
 
 int main(int argc, char *argv[])
 {
-	if (argc != 2)
+	if (argc != 3)
 	{
 		printf("Use EvtExportLog to delete Eventlog Record.The new file will be saved at the same path.\n\n");
 		printf("Usage:\n");

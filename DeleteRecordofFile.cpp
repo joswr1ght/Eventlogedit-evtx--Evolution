@@ -1,3 +1,6 @@
+#define UNICODE
+#include <stdarg.h>
+#include <stdio.h>
 #include <windows.h>
 #define SUCCESSED 0
 #define FAILURE 1

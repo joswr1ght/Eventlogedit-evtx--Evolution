@@ -1,3 +1,6 @@
+#define UNICODE
+#include <stdarg.h>
+#include <stdio.h>
 #include <windows.h>
 #include <winevt.h>
 #pragma comment(lib,"wevtapi.lib")
